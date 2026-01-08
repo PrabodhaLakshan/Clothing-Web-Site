@@ -17,7 +17,7 @@ function changeSlide() {
 
 setInterval(changeSlide, 5000); // Every 5 seconds
 
-// 2. Global Cart Variable (Ekaparak pamanak ihalin danna)
+// 2. Global Cart Variable
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 // Initial Cart Count Update
@@ -26,33 +26,8 @@ if (countElementInitial) {
     countElementInitial.innerText = cart.length;
 }
 
-// Sample Data
-const products = [
-    {
-        id: 1,
-        name: "Cute Pink Baby Frock",
-        price: 2500,
-        discount: 10,
-        category: "Frocks",
-        sizes: ["0-3M", "3-6M", "6-12M"],
-        colors: ["Pink", "White"],
-        image: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=1000",
-        description: "High quality cotton frock for your little princess.",
-        isSoldOut: false
-    },
-    {
-        id: 2,
-        name: "Blue Cotton Romper",
-        price: 1800,
-        discount: 0,
-        category: "Rompers",
-        sizes: ["3-6M", "6-12M"],
-        colors: ["Blue"],
-        image: "https://images.unsplash.com/photo-1522771917583-67b8511ecb5d?q=80&w=1000",
-        description: "Soft and comfortable romper for daily use.",
-        isSoldOut: true
-    }
-];
+// 3. Products Variable (Meka ekaparak pamanak liyanna)
+let products = []; 
 
 const productContainer = document.getElementById('product-container');
 
@@ -119,14 +94,15 @@ function sendToWhatsApp() {
 
 // Add to Cart
 function addToCart(productId) {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => p.id == productId);
     
+    if (!product) return;
     if (product.isSoldOut) {
         alert("Sorry, this item is Sold Out!");
         return;
     }
 
-    const existingItem = cart.find(item => item.id === productId);
+    const existingItem = cart.find(item => item.id == productId);
 
     if (existingItem) {
         existingItem.quantity += 1;
@@ -199,9 +175,41 @@ function removeItem(index) {
     updateCartCount();
 }
 
-// Page load ekedi functions run kirima
+// Google Sheet Integration
+const sheetId = '1G4cN7nFeC3160l5q9B18kGW3fEJDXLFjaOIJf-and-w'; 
+const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
+
+async function loadProductsFromSheet() {
+    try {
+        const response = await fetch(base);
+        const data = await response.text();
+        
+        const rows = data.split('\n').slice(1); 
+        products = rows.map(row => {
+            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); 
+            return {
+                id: cols[0].replace(/"/g, '').trim(),
+                name: cols[1].replace(/"/g, '').trim(),
+                price: parseFloat(cols[2].replace(/"/g, '')),
+                description: cols[3].replace(/"/g, '').trim(),
+                category: cols[4].replace(/"/g, '').trim(),
+                sizes: cols[5].replace(/"/g, '').split(','),
+                colors: cols[6].replace(/"/g, '').split(','),
+                discount: parseFloat(cols[7].replace(/"/g, '')),
+                image: cols[8].replace(/"/g, '').trim(),
+                isSoldOut: cols[9].replace(/"/g, '').trim().toLowerCase() === 'sold out'
+            };
+        });
+        
+        displayProducts(); 
+    } catch (error) {
+        console.error("Sheet data loading error:", error);
+    }
+}
+
+// Unified Window Load
 window.onload = function() {
-    displayProducts();
+    loadProductsFromSheet();
     displayCartItems();
     updateCartCount();
 };
