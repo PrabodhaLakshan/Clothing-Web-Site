@@ -2,71 +2,279 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Baby Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .selected-tag { border-color: #ec4899; background-color: #fdf2f8; color: #ec4899; }
+        ::-webkit-scrollbar { height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 10px; }
+    </style>
 </head>
-<body class="bg-gray-100 p-10">
-    <div class="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-xl">
-        <h1 class="text-3xl font-bold mb-6 text-pink-500">Add New Baby Cloth</h1>
-        
-        <form id="adminForm" class="space-y-4">
-            <input type="text" id="itemName" placeholder="Cloth Name" class="w-full border p-3 rounded-xl" required>
-            <div class="flex space-x-4">
-                <input type="number" id="itemPrice" placeholder="Price (Rs.)" class="w-1/2 border p-3 rounded-xl" required>
-                <input type="number" id="itemDiscount" placeholder="Discount %" class="w-1/2 border p-3 rounded-xl">
+<body class="bg-gray-50 min-h-screen font-sans">
+
+    <div id="login-overlay" class="fixed inset-0 bg-pink-500 z-[100] flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Admin Login</h2>
+            <div class="space-y-4">
+                <input type="text" id="username" placeholder="Username" class="w-full p-4 border rounded-2xl outline-pink-400">
+                <input type="password" id="password" placeholder="Password" class="w-full p-4 border rounded-2xl outline-pink-400">
+                <button onclick="checkLogin()" class="w-full bg-pink-600 text-white py-4 rounded-2xl font-bold hover:bg-pink-700 transition">Enter Dashboard</button>
             </div>
-            <textarea id="itemDesc" placeholder="Description" class="w-full border p-3 rounded-xl"></textarea>
-            
-            <label class="block font-bold">Upload Image:</label>
-            <input type="file" id="itemImage" accept="image/*" class="w-full border p-2 rounded-xl" required>
-            
-            <button type="submit" id="submitBtn" class="w-full bg-pink-500 text-white py-4 rounded-xl font-bold text-lg hover:bg-pink-600 transition">
-                🚀 Add to Shop
-            </button>
-        </form>
+            <p id="login-error" class="text-red-500 text-center mt-4 hidden">Invalid Username or Password!</p>
+        </div>
+    </div>
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-pink-100">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-black text-pink-500 tracking-tighter">BABY STORE <span class="text-gray-300 font-light text-sm italic">ADMIN</span></div>
+            <div class="flex items-center space-x-6">
+                <button onclick="showSection('add-section')" class="text-sm font-bold text-gray-600 hover:text-pink-500 uppercase">Add Item</button>
+                <button onclick="showSection('manage-section')" class="text-sm font-bold text-gray-600 hover:text-pink-500 uppercase">Inventory</button>
+                <button onclick="logout()" class="text-red-500 font-bold"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-10 max-w-5xl">
+        
+        <section id="add-section" class="admin-section">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+                <h2 class="text-2xl font-bold mb-8 text-gray-800 flex items-center"><i class="fas fa-magic mr-3 text-pink-500"></i> List New Product</h2>
+                <form id="adminForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <input type="text" id="itemName" placeholder="Product Name" class="p-4 border rounded-2xl w-full outline-pink-400" required>
+                        <select id="itemCat" class="p-4 border rounded-2xl w-full outline-pink-400">
+                            <option value="Frocks">Frocks</option>
+                            <option value="Rompers">Rompers</option>
+                            <option value="Suits">Suits</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <input type="number" id="itemPrice" placeholder="Price (Rs.)" class="p-4 border rounded-2xl w-full outline-pink-400" required>
+                        <input type="number" id="itemDiscount" placeholder="Discount %" class="p-4 border rounded-2xl w-full outline-pink-400">
+                    </div>
+                    <textarea id="itemDesc" placeholder="Product Story/Description" class="p-4 border rounded-2xl w-full h-32 outline-pink-400"></textarea>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-6 rounded-2xl">
+                            <label class="font-bold text-sm text-gray-500 mb-2 block uppercase">Sizes</label>
+                            <div class="flex space-x-2 mb-4"><input type="text" id="sizeInput" class="flex-grow p-2 border rounded-xl"><button type="button" onclick="addTag('size')" class="bg-gray-800 text-white px-4 rounded-xl font-bold">Add</button></div>
+                            <div id="size-tags" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-2xl">
+                            <label class="font-bold text-sm text-gray-500 mb-2 block uppercase">Colors</label>
+                            <div class="flex space-x-2 mb-4"><input type="text" id="colorInput" class="flex-grow p-2 border rounded-xl"><button type="button" onclick="addTag('color')" class="bg-gray-800 text-white px-4 rounded-xl font-bold">Add</button></div>
+                            <div id="color-tags" class="flex flex-wrap gap-2"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-pink-50 p-6 rounded-2xl border-2 border-dashed border-pink-200">
+                        <label class="font-bold text-gray-700 block mb-2">Upload Images (Max 3)</label>
+                        <input type="file" id="itemImages" accept="image/*" multiple class="w-full">
+                        <div id="image-previews" class="flex gap-4 mt-4"></div>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="w-full bg-pink-500 text-white py-5 rounded-2xl font-bold text-xl shadow-lg hover:bg-pink-600 transition">🚀 Add to Shop</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="manage-section" class="admin-section hidden">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+                <h2 class="text-2xl font-bold mb-8 text-gray-800 flex items-center"><i class="fas fa-warehouse mr-3 text-pink-500"></i> Inventory Management</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead><tr class="text-gray-400 text-sm uppercase border-b"><th class="pb-4">Product</th><th class="pb-4">Price</th><th class="pb-4">Status</th><th class="pb-4 text-center">Actions</th></tr></thead>
+                        <tbody id="manage-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="edit-modal" class="fixed inset-0 bg-black/70 z-[110] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-8"><h2 class="text-2xl font-bold text-gray-800">Edit Product Details</h2><button onclick="closeEditModal()" class="text-gray-400 text-3xl">&times;</button></div>
+            <form id="editForm" class="space-y-4">
+                <input type="hidden" id="editId">
+                <input type="text" id="editName" class="w-full p-4 border rounded-2xl outline-pink-400 font-bold" required>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="editPrice" class="w-full p-4 border rounded-2xl outline-pink-400" required>
+                    <input type="number" id="editDiscount" class="w-full p-4 border rounded-2xl outline-pink-400">
+                </div>
+                <textarea id="editDesc" class="w-full p-4 border rounded-2xl outline-pink-400 h-24"></textarea>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="editSizes" placeholder="Sizes (S,M,L)" class="p-4 border rounded-2xl w-full">
+                    <input type="text" id="editColors" placeholder="Colors (Pink,Blue)" class="p-4 border rounded-2xl w-full">
+                </div>
+                <div class="bg-gray-50 p-4 rounded-2xl">
+                    <label class="block font-bold mb-2 text-sm text-gray-600 uppercase italic underline">Current Images:</label>
+                    <div id="edit-current-images" class="flex gap-2 overflow-x-auto mb-4"></div>
+                    <label class="block font-bold mb-2 text-sm text-gray-600">Change Images? (New upload will replace current)</label>
+                    <input type="file" id="editImages" multiple class="w-full p-2 bg-white rounded-xl border">
+                </div>
+                <button type="submit" id="editSubmitBtn" class="w-full bg-pink-500 text-white py-4 rounded-2xl font-bold text-lg hover:bg-pink-600">✅ Update Product</button>
+            </form>
+        </div>
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxtXvVlabVa3F855bZwjiXm0r0G60dPXkyQRgaEhxafTaSfGvJ2dilqep2XJzidemyE/exec'; // Issealla copy karagaththa Web App URL eka methanata danna
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz-OplRwiAP54a6rlEVb7UOJUfJ4KEpmTvwupQWojDE2GLpEtt3r0scfPSZkJiigoG1/exec';
+        let sizesArr = [], colorsArr = [], imageFiles = [];
 
-        document.getElementById('adminForm').addEventListener('submit', e => {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.innerText = "Uploading... Please wait";
-            submitBtn.disabled = true;
+        function checkLogin() {
+            if(document.getElementById('username').value === "admin" && document.getElementById('password').value === "baby123") {
+                document.getElementById('login-overlay').classList.add('hidden');
+                loadManageTable();
+            } else { document.getElementById('login-error').classList.remove('hidden'); }
+        }
 
-            const file = document.getElementById('itemImage').files[0];
+        function logout() { location.reload(); }
+
+        function showSection(id) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            if(id === 'manage-section') loadManageTable();
+        }
+
+        function addTag(type) {
+            const input = document.getElementById(`${type}Input`);
+            const val = input.value.trim();
+            if(val) { (type === 'size' ? sizesArr : colorsArr).push(val); renderTags(type); input.value = ""; }
+        }
+
+        function renderTags(type) {
+            const arr = type === 'size' ? sizesArr : colorsArr;
+            document.getElementById(`${type}-tags`).innerHTML = arr.map((t, i) => `
+                <span class="bg-pink-100 text-pink-600 px-3 py-1 rounded-full text-xs font-bold flex items-center">${t} 
+                <i class="fas fa-times ml-2 cursor-pointer" onclick="removeTag('${type}', ${i})"></i></span>
+            `).join('');
+        }
+
+        function removeTag(type, index) { (type === 'size' ? sizesArr : colorsArr).splice(index, 1); renderTags(type); }
+
+        document.getElementById('itemImages').addEventListener('change', e => {
+            imageFiles = Array.from(e.target.files).slice(0, 3);
+            const preview = document.getElementById('image-previews');
+            preview.innerHTML = "";
+            imageFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = ex => preview.innerHTML += `<img src="${ex.target.result}" class="w-20 h-20 object-cover rounded-xl border-2 border-pink-200">`;
+                reader.readAsDataURL(file);
+            });
+        });
+
+        const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
-
-            reader.onload = function() {
-                const data = {
-                    id: Date.now(),
-                    name: document.getElementById('itemName').value,
-                    price: document.getElementById('itemPrice').value,
-                    discount: document.getElementById('itemDiscount').value || 0,
-                    description: document.getElementById('itemDesc').value,
-                    category: "General",
-                    sizes: "0-3M, 3-6M",
-                    colors: "Pink",
-                    imageName: file.name,
-                    imageContent: reader.result
-                };
-
-                fetch(scriptURL, {
-                    method: 'POST',
-                    body: JSON.stringify(data)
-                })
-                .then(res => res.json())
-                .then(response => {
-                    alert("Product Added Successfully!");
-                    location.reload();
-                })
-                .catch(error => {
-                    console.error('Error!', error.message);
-                    alert("Something went wrong!");
-                });
-            };
             reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = e => reject(e);
+        });
+
+        document.getElementById('adminForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = "Syncing Data..."; btn.disabled = true;
+
+            let uploaded = [];
+            for (let file of imageFiles) {
+                const b64 = await toBase64(file);
+                uploaded.push({ imageName: file.name, imageContent: b64 });
+            }
+
+            const payload = {
+                action: "add",
+                id: Date.now(),
+                name: document.getElementById('itemName').value,
+                price: document.getElementById('itemPrice').value,
+                discount: document.getElementById('itemDiscount').value || 0,
+                description: document.getElementById('itemDesc').value,
+                category: document.getElementById('itemCat').value,
+                sizes: sizesArr.join(','),
+                colors: colorsArr.join(','),
+                images: uploaded
+            };
+
+            await fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) });
+            alert("Success!"); location.reload();
+        });
+
+        async function loadManageTable() {
+            const body = document.getElementById('manage-table-body');
+            body.innerHTML = "<tr><td colspan='4' class='p-10 text-center italic text-gray-400 animate-pulse'>Fetching Live Inventory...</td></tr>";
+            try {
+                const res = await fetch(scriptURL);
+                const data = await res.json();
+                body.innerHTML = "";
+                for(let i=1; i<data.length; i++){
+                    const row = data[i];
+                    body.innerHTML += `
+                        <tr class="border-b hover:bg-gray-50 transition">
+                            <td class="py-4 flex items-center space-x-4"><img src="${row[8].split(',')[0]}" class="w-12 h-12 object-cover rounded-lg shadow-sm"><div><p class="font-bold text-gray-700">${row[1]}</p><p class="text-xs text-gray-400">${row[4]}</p></div></td>
+                            <td class="py-4 font-bold text-pink-600 text-sm">Rs. ${row[2]}</td>
+                            <td class="py-4"><span class="px-2 py-1 rounded text-[10px] font-black uppercase ${row[9] === 'Available' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">${row[9]}</span></td>
+                            <td class="py-4 text-center space-x-2">
+                                <button onclick="updateStatus('${row[0]}', '${row[9] === 'Available' ? 'Sold Out' : 'Available'}')" class="text-blue-500 hover:text-blue-700 text-xs font-bold uppercase underline">Status</button>
+                                <button onclick="openEditModal('${row[0]}')" class="bg-gray-800 text-white px-3 py-1 rounded-lg text-[10px] font-bold">EDIT</button>
+                                <button onclick="deleteItem('${row[0]}')" class="text-red-500"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch(e) { body.innerHTML = "Error loading data!"; }
+        }
+
+        async function deleteItem(id) { if(confirm("Delete this permanently?")) { await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "delete", id: id }) }); loadManageTable(); } }
+        async function updateStatus(id, stat) { await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "status", id: id, status: stat }) }); loadManageTable(); }
+
+        async function openEditModal(id) {
+            const res = await fetch(scriptURL);
+            const data = await res.json();
+            const item = data.find(r => r[0] == id);
+            if(item) {
+                document.getElementById('editId').value = item[0];
+                document.getElementById('editName').value = item[1];
+                document.getElementById('editPrice').value = item[2];
+                document.getElementById('editDesc').value = item[3];
+                document.getElementById('editSizes').value = item[5];
+                document.getElementById('editColors').value = item[6];
+                document.getElementById('editDiscount').value = item[7];
+
+                const currentImgDiv = document.getElementById('edit-current-images');
+                currentImgDiv.innerHTML = item[8].split(',').map(url => `<img src="${url.trim()}" class="w-20 h-20 object-cover rounded-xl border">`).join('');
+                document.getElementById('edit-modal').classList.remove('hidden');
+            }
+        }
+
+        function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
+
+        document.getElementById('editForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('editSubmitBtn');
+            btn.innerText = "Updating..."; btn.disabled = true;
+
+            let uploaded = [];
+            const files = document.getElementById('editImages').files;
+            if(files.length > 0) {
+                for (let f of files) { const b64 = await toBase64(f); uploaded.push({ imageName: f.name, imageContent: b64 }); }
+            }
+
+            const payload = {
+                action: "edit",
+                id: document.getElementById('editId').value,
+                name: document.getElementById('editName').value,
+                price: document.getElementById('editPrice').value,
+                description: document.getElementById('editDesc').value,
+                sizes: document.getElementById('editSizes').value,
+                colors: document.getElementById('editColors').value,
+                discount: document.getElementById('editDiscount').value,
+                images: uploaded.length > 0 ? uploaded : null
+            };
+
+            await fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) });
+            alert("Updated!"); location.reload();
         });
     </script>
 </body>

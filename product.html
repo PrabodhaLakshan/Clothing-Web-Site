@@ -3,40 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Details</title>
+    <title>Product Details | Baby Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Highlight selection style */
+        .selected-option { 
+            border-color: #ec4899 !important; 
+            background-color: #fdf2f8 !important; 
+            color: #ec4899 !important;
+            box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2);
+        }
+        /* Smooth transition for hover effects */
+        .btn-option { transition: all 0.2s ease; }
+    </style>
 </head>
-<body class="bg-gray-50">
-    <nav class="p-6"><a href="index.html" class="text-pink-500 font-bold"><i class="fa-solid fa-arrow-left"></i> Back to Shop</a></nav>
+<body class="bg-gray-50 flex flex-col min-h-screen">
 
-    <div class="container mx-auto px-6 py-10">
-        <div class="flex flex-col md:flex-row bg-white rounded-3xl shadow-xl overflow-hidden">
-            <div class="md:w-1/2">
-                <img id="p-image" src="" class="w-full h-full object-cover">
+    <nav class="bg-white shadow-sm p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center px-4 md:px-10">
+            <a href="index.html" class="text-xl md:text-2xl font-bold text-pink-500 tracking-tight">BABY STORE</a>
+            <a href="cart.html" class="text-gray-600 relative">
+                <i class="fa-solid fa-cart-shopping text-xl"></i>
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto px-4 py-6 md:py-12 max-w-6xl">
+        <div class="flex flex-col md:flex-row bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden">
+            
+            <div class="w-full md:w-1/2 p-4 md:p-6 bg-gray-100 flex flex-col justify-center">
+                <div class="relative group">
+                    <img id="main-img" src="" class="w-full h-auto max-h-[400px] md:max-h-[500px] object-contain mx-auto rounded-xl transition duration-300">
+                </div>
+                <div id="thumb-container" class="flex mt-4 space-x-2 overflow-x-auto pb-2 scrollbar-hide justify-center">
+                    </div>
             </div>
-            <div class="md:w-1/2 p-8 md:p-12">
-                <h1 id="p-name" class="text-4xl font-bold mb-4"></h1>
-                <p id="p-price" class="text-2xl text-pink-500 font-bold mb-6"></p>
-                <p id="p-desc" class="text-gray-600 mb-8 leading-relaxed"></p>
+
+            <div class="w-full md:w-1/2 p-6 md:p-10 lg:p-12 flex flex-col">
+                <nav class="mb-4">
+                    <a href="index.html" class="text-pink-500 text-sm font-medium hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Back to Shop</a>
+                </nav>
                 
-                <div class="mb-6">
-                    <span class="font-bold block mb-2">Select Size:</span>
-                    <div id="p-sizes" class="flex space-x-3"></div>
+                <span id="p-cat" class="text-pink-400 font-bold uppercase tracking-widest text-xs mb-2 block"></span>
+                <h1 id="p-title" class="text-2xl md:text-4xl font-bold text-gray-800 mb-4 leading-tight"></h1>
+                
+                <div class="flex items-center space-x-4 mb-6">
+                    <span id="p-price" class="text-2xl md:text-3xl font-bold text-pink-600"></span>
+                    <span id="p-old-price" class="text-lg md:text-xl text-gray-400 line-through font-light"></span>
                 </div>
 
-                <button onclick="addToCart()" class="w-full bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg">
-                    <i class="fa-solid fa-cart-plus mr-2"></i> Add to Cart
+                <div class="border-t border-b py-4 mb-6">
+                    <p id="p-desc" class="text-gray-600 text-sm md:text-base leading-relaxed"></p>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <span class="font-bold text-gray-700 block mb-3 text-sm uppercase">Select Size:</span>
+                        <div id="size-options" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div>
+                        <span class="font-bold text-gray-700 block mb-3 text-sm uppercase">Select Color:</span>
+                        <div id="color-options" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="flex items-center space-x-6">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-700 text-sm uppercase mb-2">Quantity:</span>
+                            <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden w-max bg-white">
+                                <button onclick="changeQty(-1)" class="px-4 py-2 hover:bg-gray-100 text-gray-600">-</button>
+                                <span id="qty-val" class="px-4 py-2 font-bold text-gray-800 min-w-[40px] text-center">1</span>
+                                <button onclick="changeQty(1)" class="px-4 py-2 hover:bg-gray-100 text-gray-600">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="finalAddToCart()" class="mt-8 md:mt-10 w-full bg-pink-500 hover:bg-pink-600 text-white py-4 md:py-5 rounded-xl font-bold text-lg md:text-xl shadow-lg transition duration-300 active:scale-95 flex items-center justify-center">
+                    <i class="fa-solid fa-cart-plus mr-3"></i> Add to Cart
                 </button>
             </div>
         </div>
-    </div>
+    </main>
 
+    <footer class="bg-gray-900 text-white pt-12 pb-6 px-6">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div>
+                <h3 class="text-xl font-bold text-pink-500 mb-4 tracking-wider">BABY STORE</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Your one-stop shop for the cutest and softest baby clothing in Sri Lanka. We prioritize comfort and style for your little ones.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 text-gray-200">Quick Links</h4>
+                <ul class="text-gray-400 space-y-2 text-sm">
+                    <li><a href="index.html" class="hover:text-pink-400 transition">Home</a></li>
+                    <li><a href="#" class="hover:text-pink-400 transition">Categories</a></li>
+                    <li><a href="#" class="hover:text-pink-400 transition">Contact Us</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 text-gray-200">Contact Us</h4>
+                <div class="text-gray-400 space-y-2 text-sm italic">
+                    <p><i class="fa-brands fa-whatsapp mr-2 text-green-500"></i> +94 77 872 6607</p>
+                    <p><i class="fa-solid fa-envelope mr-2 text-pink-400"></i> info@babystore.lk</p>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-xs">
+            &copy; 2026 Baby Store. Built with ❤️ for your little ones.
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
     <script>
-        // Meke JS eka mama script.js eke nathuwa meke liyanawa lesi wenna
-        const productId = localStorage.getItem('selectedProductId');
-        // Issealla liyapu array eka mehetath oni wenawa (Nathnam Google Sheet eken ganna puluwan)
-        // ... Load product logic here
+        let selectedSize = "";
+        let selectedColor = "";
+        let currentQty = 1;
+
+        window.onload = function() {
+            const data = localStorage.getItem('selectedProduct');
+            if (!data) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            const item = JSON.parse(data);
+
+            // Populate Text Data
+            document.getElementById('p-title').innerText = item.name;
+            document.getElementById('p-price').innerText = "Rs. " + (item.price - (item.price * item.discount / 100)).toLocaleString();
+            document.getElementById('p-old-price').innerText = item.discount > 0 ? "Rs. " + item.price.toLocaleString() : "";
+            document.getElementById('p-desc').innerText = item.description;
+            document.getElementById('p-cat').innerText = item.category;
+
+            // Image Gallery Logic
+            const images = item.image.split(',');
+            const mainImg = document.getElementById('main-img');
+            mainImg.src = images[0].trim();
+
+            const thumbContainer = document.getElementById('thumb-container');
+            thumbContainer.innerHTML = ""; 
+            
+            if(images.length > 1) {
+                images.forEach(imgUrl => {
+                    const img = document.createElement('img');
+                    img.src = imgUrl.trim();
+                    img.className = "w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-pink-300 p-1 bg-white flex-shrink-0 transition";
+                    img.onclick = () => {
+                        mainImg.src = imgUrl.trim();
+                        // Optional: highlight active thumbnail
+                    };
+                    thumbContainer.appendChild(img);
+                });
+            }
+
+            // Sizes Rendering
+            const sizeBox = document.getElementById('size-options');
+            item.sizes.forEach(s => {
+                const btn = document.createElement('button');
+                btn.innerText = s.trim();
+                btn.className = "btn-option border-2 border-gray-200 px-4 md:px-6 py-2 rounded-lg md:rounded-full font-medium text-sm md:text-base bg-white hover:border-pink-200";
+                btn.onclick = () => {
+                    document.querySelectorAll('#size-options button').forEach(b => b.classList.remove('selected-option'));
+                    btn.classList.add('selected-option');
+                    selectedSize = s.trim();
+                };
+                sizeBox.appendChild(btn);
+            });
+
+            // Colors Rendering
+            const colorBox = document.getElementById('color-options');
+            item.colors.forEach(c => {
+                const btn = document.createElement('button');
+                btn.innerText = c.trim();
+                btn.className = "btn-option border-2 border-gray-200 px-4 md:px-6 py-2 rounded-lg md:rounded-full font-medium text-sm md:text-base bg-white hover:border-pink-200";
+                btn.onclick = () => {
+                    document.querySelectorAll('#color-options button').forEach(b => b.classList.remove('selected-option'));
+                    btn.classList.add('selected-option');
+                    selectedColor = c.trim();
+                };
+                colorBox.appendChild(btn);
+            });
+        };
+
+        function changeQty(val) {
+            currentQty = Math.max(1, currentQty + val);
+            document.getElementById('qty-val').innerText = currentQty;
+        }
+
+        function finalAddToCart() {
+            if (!selectedSize || !selectedColor) {
+                alert("Please select both Size and Color before adding to cart!");
+                return;
+            }
+            
+            const data = JSON.parse(localStorage.getItem('selectedProduct'));
+            const cartItem = {
+                id: data.id,
+                name: data.name,
+                price: data.price - (data.price * data.discount / 100),
+                image: data.image.split(',')[0].trim(),
+                size: selectedSize,
+                color: selectedColor,
+                quantity: currentQty
+            };
+
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push(cartItem);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            // Visual feedback
+            alert("Success! " + data.name + " added to your cart.");
+            window.location.href = "cart.html";
+        }
     </script>
 </body>
 </html>

@@ -3,54 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Little Blossoms | Baby Store</title>
+    <title>Mandinu Clothing | Baby Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Custom styles for Hero Slider transitions */
         .fade-slide { transition: opacity 1s ease-in-out; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        #mobile-menu.active { display: block; }
     </style>
 </head>
-<body class="bg-pink-50 text-gray-800">
+<body class="bg-pink-50 text-gray-800 flex flex-col min-h-screen">
 
-    <nav class="bg-white shadow-md sticky top-0 z-50 py-4 px-6 md:px-16 flex justify-between items-center">
-        <div class="text-3xl font-bold text-pink-500 tracking-wider">Mandinu<span class="text-blue-400"> Clothing</span></div>
+    <nav class="bg-white shadow-md sticky top-0 z-50 py-3 px-4 md:px-10 flex justify-between items-center">
         
-        <ul class="hidden md:flex space-x-8 font-medium">
-            <li><a href="index.html" class="hover:text-pink-500">Home</a></li>
-            <li><a href="#categories" class="hover:text-pink-500">Categories</a></li>
-            <li><a href="#" class="hover:text-pink-500">About Us</a></li>
-            <li><a href="#" class="hover:text-pink-500">Contact Us</a></li>
-        </ul>
-
-        <div class="flex items-center space-x-6">
-            <a href="cart.html" class="relative">
-                <i class="fa-solid fa-cart-shopping text-2xl text-gray-600"></i>
-                <span id="cart-count" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full px-1.5">0</span>
+        <div class="flex items-center space-x-3">
+            <button onclick="toggleMobileMenu()" class="md:hidden text-2xl text-gray-700 mr-2">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </button>
+            <a href="index.html" class="flex items-center space-x-2">
+                <img src="logo.png" alt="Logo" class="h-10 w-10 md:h-12 md:w-12 object-contain rounded-full border border-pink-100">
+                <div class="leading-none">
+                    <span class="text-xl md:text-2xl font-black text-pink-500 tracking-tighter uppercase">Mandinu</span>
+            <span class="text-xl md:text-2xl font-bold text-blue-400 tracking-tighter uppercase">Clothing</span>
+                </div>
             </a>
-            <i class="fa-solid fa-bars text-2xl md:hidden cursor-pointer"></i>
+        </div>
+
+        <div class="hidden md:flex flex-grow justify-center max-w-2xl px-10">
+            <ul class="flex space-x-8 font-bold text-gray-600 mr-10 items-center text-sm lg:text-base">
+                <li><a href="index.html" class="hover:text-pink-500 transition">Home</a></li>
+                <li class="relative dropdown">
+                    <a href="#" class="hover:text-pink-500 transition flex items-center">
+                        Categories <i class="fa-solid fa-chevron-down ml-1 text-[10px]"></i>
+                    </a>
+                    <ul class="dropdown-menu absolute hidden bg-white shadow-2xl rounded-2xl py-4 mt-0 border border-pink-50 top-full left-0 w-48">
+                        <li><a href="#" onclick="filterByCategory('All')" class="block px-6 py-2 hover:bg-pink-50 hover:text-pink-500">✨ All Collections</a></li>
+                        <hr class="my-2 border-gray-50">
+                        <li><a href="#" onclick="filterByCategory('Shart')" class="block px-6 py-2 hover:bg-pink-50 hover:text-pink-500">👕 Baby Shirts</a></li>
+                        <li><a href="#" onclick="filterByCategory('Shot')" class="block px-6 py-2 hover:bg-pink-50 hover:text-pink-500">🩳 Shorts</a></li>
+                        <li><a href="#" onclick="filterByCategory('Frocks')" class="block px-6 py-2 hover:bg-pink-50 hover:text-pink-500">👗 Frocks</a></li>
+                        <li><a href="#" onclick="filterByCategory('Rompers')" class="block px-6 py-2 hover:bg-pink-50 hover:text-pink-500">👶 Rompers</a></li>
+                    </ul>
+                </li>
+                <li><a href="#" class="hover:text-pink-500 transition">About</a></li>
+            </ul>
+
+            <div class="flex items-center bg-gray-100 px-5 py-2 rounded-full w-full max-w-xs">
+                <i class="fa-solid fa-magnifying-glass text-gray-400 mr-3 text-sm"></i>
+                <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Find baby clothes..." class="bg-transparent outline-none text-sm w-full">
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <a href="cart.html" class="relative group p-2 bg-pink-50 rounded-full hover:bg-pink-500 transition-all duration-300">
+                <i class="fa-solid fa-cart-shopping text-xl text-pink-500 group-hover:text-white"></i>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-gray-800 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">0</span>
+            </a>
         </div>
     </nav>
 
-    <div class="relative h-[400px] md:h-[550px] overflow-hidden">
-        <div id="slider">
-            <div class="absolute inset-0 bg-cover bg-center fade-slide flex items-center justify-center" 
-                 style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071');">
-                <div class="text-center text-white">
-                    <h1 class="text-4xl md:text-6xl font-bold mb-4">Newborn Essentials</h1>
-                    <p class="text-lg mb-6">Softest fabrics for your little ones</p>
-                    <button class="bg-pink-500 hover:bg-pink-600 px-8 py-3 rounded-full font-bold">Shop Now</button>
+    <div class="md:hidden bg-white px-6 py-3 shadow-sm border-t border-gray-50">
+        <div class="flex items-center bg-gray-100 px-4 py-2 rounded-xl">
+            <i class="fa-solid fa-magnifying-glass text-gray-400 mr-2"></i>
+            <input type="text" id="mobileSearchInput" onkeyup="filterProductsMobile()" placeholder="Search baby wear..." class="bg-transparent outline-none text-sm w-full">
+        </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden fixed inset-0 bg-white z-[60] p-10 overflow-y-auto">
+        <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 text-3xl">&times;</button>
+        <div class="flex items-center space-x-2 mb-10">
+            <img src="logo.png" class="h-10 w-10 rounded-full" alt="Logo">
+            <span class="font-black text-pink-500 italic">MANDINU MENU</span>
+        </div>
+        <ul class="space-y-6 text-2xl font-bold text-gray-800">
+            <li><a href="index.html">Home</a></li>
+            <li class="text-pink-500 underline uppercase text-sm tracking-widest">Categories</li>
+            <div class="pl-4 space-y-4 text-lg text-gray-500">
+                <li onclick="filterByCategory('All'); toggleMobileMenu()" class="cursor-pointer">✨ All</li>
+                <li onclick="filterByCategory('Shart'); toggleMobileMenu()" class="cursor-pointer">👕 Shirts</li>
+                <li onclick="filterByCategory('Shot'); toggleMobileMenu()" class="cursor-pointer">🩳 Shorts</li>
+                <li onclick="filterByCategory('Frocks'); toggleMobileMenu()" class="cursor-pointer">👗 Frocks</li>
+            </div>
+            <li><a href="#" class="border-t pt-6 block">Contact Us</a></li>
+        </ul>
+    </div>
+
+    <div class="relative h-[300px] md:h-[500px] overflow-hidden">
+        <div id="slider" class="h-full">
+            <div class="absolute inset-0 bg-cover bg-center flex items-center justify-center transition-all duration-1000" 
+                 style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.2)), url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071');">
+                <div class="text-center text-white px-6">
+                    <h1 class="text-3xl md:text-6xl font-black mb-4 uppercase tracking-tighter">Premium Baby Wear</h1>
+                    <p class="text-sm md:text-xl mb-6 font-light">Quality clothes for your precious little blossoms.</p>
+                    <a href="#product-container" class="bg-pink-500 hover:bg-white hover:text-pink-500 px-10 py-3 rounded-full font-bold transition-all shadow-lg inline-block">VIEW COLLECTIONS</a>
                 </div>
             </div>
-            </div>
+        </div>
     </div>
 
-    <div class="container mx-auto py-12 px-6">
-        <h2 class="text-3xl font-bold text-center mb-10 text-gray-700">Recent Arrivals</h2>
-        <div id="product-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+    <main class="flex-grow container mx-auto py-12 px-6">
+        <div class="flex justify-between items-end mb-10 border-b-2 border-pink-100 pb-4">
+            <div>
+                <h2 id="current-category" class="text-3xl font-black text-gray-800 uppercase tracking-tighter">All Collections</h2>
+                <p class="text-pink-400 text-sm">Handpicked styles just for you</p>
             </div>
-    </div>
+        </div>
+        
+        <div id="product-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+            </div>
+    </main>
+
+    <footer class="bg-gray-900 text-white pt-16 pb-8 px-10 mt-10">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+            <div>
+                <h3 class="text-2xl font-black text-pink-500 mb-6 tracking-tighter italic">MANDINU CLOTHING</h3>
+                <p class="text-gray-400 leading-relaxed text-sm">Dedicated to providing premium quality, soft, and stylish baby clothing for newborns and toddlers in Sri Lanka.</p>
+                <div class="flex space-x-4 mt-6 justify-center md:justify-start">
+                    <i class="fa-brands fa-facebook hover:text-pink-500 cursor-pointer text-xl"></i>
+                    <i class="fa-brands fa-instagram hover:text-pink-500 cursor-pointer text-xl"></i>
+                    <i class="fa-brands fa-whatsapp hover:text-pink-500 cursor-pointer text-green-500 text-xl"></i>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6 uppercase text-gray-200 text-sm">Customer Care</h4>
+                <ul class="text-gray-400 space-y-3 text-sm">
+                    <li><a href="index.html" class="hover:text-pink-400">Home</a></li>
+                    <li><a href="#" class="hover:text-pink-400">Order Tracking</a></li>
+                    <li><a href="#" class="hover:text-pink-400">Size Guide</a></li>
+                    <li><a href="#" class="hover:text-pink-400">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6 uppercase text-gray-200 text-sm">Our Office</h4>
+                <div class="text-gray-400 space-y-4 text-sm">
+                    <p><i class="fa-solid fa-location-dot mr-2 text-pink-500"></i> Colombo, Sri Lanka</p>
+                    <p><i class="fa-solid fa-phone mr-2 text-pink-500"></i> +94 77 872 6607</p>
+                    <p><i class="fa-solid fa-envelope mr-2 text-pink-500"></i> sales@mandinu.lk</p>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 mt-16 pt-8 text-center text-gray-600 text-[10px] tracking-widest uppercase">
+            &copy; 2026 Mandinu Clothing. All Rights Reserved.
+        </div>
+    </footer>
 
     <script src="script.js"></script>
+    <script>
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>

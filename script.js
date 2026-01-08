@@ -63,13 +63,67 @@ function displayProducts() {
         `;
         productContainer.innerHTML += card;
     });
+
+}
+    // Filter by Category Logic
+function filterByCategory(cat) {
+    document.getElementById('current-category').innerText = cat === 'All' ? 'All Collections' : cat;
+    
+    const allProducts = JSON.parse(localStorage.getItem('allProducts')) || products; // Get cached data
+    const filtered = cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat);
+    
+    renderFilteredProducts(filtered);
+}
+
+// Search Logic
+function filterProducts() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const allProducts = JSON.parse(localStorage.getItem('allProducts')) || products;
+    const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query));
+    renderFilteredProducts(filtered);
+}
+
+function filterProductsMobile() {
+    const query = document.getElementById('mobileSearchInput').value.toLowerCase();
+    const allProducts = JSON.parse(localStorage.getItem('allProducts')) || products;
+    const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query));
+    renderFilteredProducts(filtered);
+}
+
+// Helper function to render cards
+function renderFilteredProducts(items) {
+    const container = document.getElementById('product-container');
+    container.innerHTML = "";
+    
+    if(items.length === 0) {
+        container.innerHTML = `<p class="col-span-full text-center py-20 text-gray-400 italic">No items found matching your criteria.</p>`;
+        return;
+    }
+
+    items.forEach(item => {
+        // ... Oyaage displayProducts() function eke thiyena card HTML eka methanata danna ...
+        // Example:
+        const discountPrice = item.price - (item.price * item.discount / 100);
+        container.innerHTML += `
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden relative group cursor-pointer border border-gray-100" onclick="viewProduct(${item.id})">
+                <img src="${item.image.split(',')[0]}" class="w-full h-48 md:h-64 object-cover group-hover:scale-105 transition duration-500">
+                <div class="p-4">
+                    <p class="text-[10px] text-pink-400 font-bold uppercase">${item.category}</p>
+                    <h3 class="font-bold text-sm mb-1 truncate">${item.name}</h3>
+                    <p class="text-pink-600 font-bold">Rs. ${discountPrice}</p>
+                </div>
+            </div>`;
+    });
 }
 
 function viewProduct(id) {
-    localStorage.setItem('selectedProductId', id);
-    window.location.href = "product.html";
+    const item = products.find(p => p.id == id);
+    if (item) {
+        // Product details okkoma save karamu
+        localStorage.setItem('selectedProduct', JSON.stringify(item));
+        window.location.href = "product.html";
+    }
 }
-
 // WhatsApp Function
 function sendToWhatsApp() {
     if (cart.length === 0) {
@@ -205,6 +259,92 @@ async function loadProductsFromSheet() {
     } catch (error) {
         console.error("Sheet data loading error:", error);
     }
+
+    let selectedSize = "";
+let selectedColor = "";
+let currentQty = 1;
+
+function renderProductDetails() {
+    const pId = localStorage.getItem('selectedProductId');
+    // Load products from localStorage or wait for fetch
+    setTimeout(() => {
+        const item = products.find(p => p.id == pId);
+        if (!item) return;
+
+        document.getElementById('p-title').innerText = item.name;
+        document.getElementById('p-price').innerText = "Rs. " + (item.price - (item.price * item.discount / 100));
+        document.getElementById('p-old-price').innerText = item.discount > 0 ? "Rs. " + item.price : "";
+        document.getElementById('p-desc').innerText = item.description;
+        document.getElementById('p-cat').innerText = item.category;
+        
+        // Multi-image handling (Link1, Link2 kiyala sheet eke thibunoth)
+        const images = item.image.split(',');
+        document.getElementById('main-img').src = images[0];
+        
+        const thumbContainer = document.getElementById('thumb-container');
+        images.forEach(img => {
+            const t = document.createElement('img');
+            t.src = img;
+            t.className = "w-20 h-20 object-cover rounded-lg cursor-pointer border-2 hover:border-pink-500";
+            t.onclick = () => document.getElementById('main-img').src = img;
+            thumbContainer.appendChild(t);
+        });
+
+        // Sizes Render
+        const sizeBox = document.getElementById('size-options');
+        item.sizes.forEach(s => {
+            const btn = document.createElement('button');
+            btn.innerText = s;
+            btn.className = "border-2 border-gray-200 px-4 py-2 rounded-xl hover:bg-pink-50 transition";
+            btn.onclick = (e) => {
+                document.querySelectorAll('#size-options button').forEach(b => b.classList.remove('selected-option'));
+                btn.classList.add('selected-option');
+                selectedSize = s;
+            };
+            sizeBox.appendChild(btn);
+        });
+
+        // Colors Render
+        const colorBox = document.getElementById('color-options');
+        item.colors.forEach(c => {
+            const btn = document.createElement('button');
+            btn.innerText = c;
+            btn.className = "border-2 border-gray-200 px-4 py-2 rounded-xl hover:bg-pink-50 transition";
+            btn.onclick = () => {
+                document.querySelectorAll('#color-options button').forEach(b => b.classList.remove('selected-option'));
+                btn.classList.add('selected-option');
+                selectedColor = c;
+            };
+            colorBox.appendChild(btn);
+        });
+    }, 1000); // Wait for sheet to load
+}
+
+function changeQty(val) {
+    currentQty = Math.max(1, currentQty + val);
+    document.getElementById('qty-val').innerText = currentQty;
+}
+
+function finalAddToCart() {
+    if (!selectedSize || !selectedColor) {
+        alert("Please select both Size and Color!");
+        return;
+    }
+    const pId = localStorage.getItem('selectedProductId');
+    const item = products.find(p => p.id == pId);
+    
+    cart.push({
+        ...item,
+        price: item.price - (item.price * item.discount / 100),
+        size: selectedSize,
+        color: selectedColor,
+        quantity: currentQty
+    });
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert("Product added to cart!");
+    window.location.href = "cart.html";
+}
 }
 
 // Unified Window Load
