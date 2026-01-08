@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Blossoms | Baby Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Custom styles for Hero Slider transitions */
+        .fade-slide { transition: opacity 1s ease-in-out; }
+    </style>
+</head>
+<body class="bg-pink-50 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50 py-4 px-6 md:px-16 flex justify-between items-center">
+        <div class="text-3xl font-bold text-pink-500 tracking-wider">Mandinu<span class="text-blue-400"> Clothing</span></div>
+        
+        <ul class="hidden md:flex space-x-8 font-medium">
+            <li><a href="index.html" class="hover:text-pink-500">Home</a></li>
+            <li><a href="#categories" class="hover:text-pink-500">Categories</a></li>
+            <li><a href="#" class="hover:text-pink-500">About Us</a></li>
+            <li><a href="#" class="hover:text-pink-500">Contact Us</a></li>
+        </ul>
+
+        <div class="flex items-center space-x-6">
+            <a href="cart.html" class="relative">
+                <i class="fa-solid fa-cart-shopping text-2xl text-gray-600"></i>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full px-1.5">0</span>
+            </a>
+            <i class="fa-solid fa-bars text-2xl md:hidden cursor-pointer"></i>
+        </div>
+    </nav>
+
+    <div class="relative h-[400px] md:h-[550px] overflow-hidden">
+        <div id="slider">
+            <div class="absolute inset-0 bg-cover bg-center fade-slide flex items-center justify-center" 
+                 style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071');">
+                <div class="text-center text-white">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-4">Newborn Essentials</h1>
+                    <p class="text-lg mb-6">Softest fabrics for your little ones</p>
+                    <button class="bg-pink-500 hover:bg-pink-600 px-8 py-3 rounded-full font-bold">Shop Now</button>
+                </div>
+            </div>
+            </div>
+    </div>
+
+    <div class="container mx-auto py-12 px-6">
+        <h2 class="text-3xl font-bold text-center mb-10 text-gray-700">Recent Arrivals</h2>
+        <div id="product-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

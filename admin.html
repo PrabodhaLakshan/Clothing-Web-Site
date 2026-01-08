@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | Baby Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-10">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-xl">
+        <h1 class="text-3xl font-bold mb-6 text-pink-500">Add New Baby Cloth</h1>
+        
+        <form id="adminForm" class="space-y-4">
+            <input type="text" id="itemName" placeholder="Cloth Name" class="w-full border p-3 rounded-xl" required>
+            <div class="flex space-x-4">
+                <input type="number" id="itemPrice" placeholder="Price (Rs.)" class="w-1/2 border p-3 rounded-xl" required>
+                <input type="number" id="itemDiscount" placeholder="Discount %" class="w-1/2 border p-3 rounded-xl">
+            </div>
+            <textarea id="itemDesc" placeholder="Description" class="w-full border p-3 rounded-xl"></textarea>
+            
+            <label class="block font-bold">Upload Image:</label>
+            <input type="file" id="itemImage" accept="image/*" class="w-full border p-2 rounded-xl" required>
+            
+            <button type="submit" id="submitBtn" class="w-full bg-pink-500 text-white py-4 rounded-xl font-bold text-lg hover:bg-pink-600 transition">
+                🚀 Add to Shop
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxtXvVlabVa3F855bZwjiXm0r0G60dPXkyQRgaEhxafTaSfGvJ2dilqep2XJzidemyE/exec'; // Issealla copy karagaththa Web App URL eka methanata danna
+
+        document.getElementById('adminForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = "Uploading... Please wait";
+            submitBtn.disabled = true;
+
+            const file = document.getElementById('itemImage').files[0];
+            const reader = new FileReader();
+
+            reader.onload = function() {
+                const data = {
+                    id: Date.now(),
+                    name: document.getElementById('itemName').value,
+                    price: document.getElementById('itemPrice').value,
+                    discount: document.getElementById('itemDiscount').value || 0,
+                    description: document.getElementById('itemDesc').value,
+                    category: "General",
+                    sizes: "0-3M, 3-6M",
+                    colors: "Pink",
+                    imageName: file.name,
+                    imageContent: reader.result
+                };
+
+                fetch(scriptURL, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.json())
+                .then(response => {
+                    alert("Product Added Successfully!");
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    alert("Something went wrong!");
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>

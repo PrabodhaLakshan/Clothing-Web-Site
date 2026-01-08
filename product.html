@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <nav class="p-6"><a href="index.html" class="text-pink-500 font-bold"><i class="fa-solid fa-arrow-left"></i> Back to Shop</a></nav>
+
+    <div class="container mx-auto px-6 py-10">
+        <div class="flex flex-col md:flex-row bg-white rounded-3xl shadow-xl overflow-hidden">
+            <div class="md:w-1/2">
+                <img id="p-image" src="" class="w-full h-full object-cover">
+            </div>
+            <div class="md:w-1/2 p-8 md:p-12">
+                <h1 id="p-name" class="text-4xl font-bold mb-4"></h1>
+                <p id="p-price" class="text-2xl text-pink-500 font-bold mb-6"></p>
+                <p id="p-desc" class="text-gray-600 mb-8 leading-relaxed"></p>
+                
+                <div class="mb-6">
+                    <span class="font-bold block mb-2">Select Size:</span>
+                    <div id="p-sizes" class="flex space-x-3"></div>
+                </div>
+
+                <button onclick="addToCart()" class="w-full bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg">
+                    <i class="fa-solid fa-cart-plus mr-2"></i> Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Meke JS eka mama script.js eke nathuwa meke liyanawa lesi wenna
+        const productId = localStorage.getItem('selectedProductId');
+        // Issealla liyapu array eka mehetath oni wenawa (Nathnam Google Sheet eken ganna puluwan)
+        // ... Load product logic here
+    </script>
+</body>
+</html>
