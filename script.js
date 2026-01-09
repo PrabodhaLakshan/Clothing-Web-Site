@@ -1,21 +1,50 @@
-// 1. Auto Slider Functionality
-const sliderImages = [
-    'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071',
-    'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=2075',
-    'https://images.unsplash.com/photo-1544126592-807daa2b565b?q=80&w=2070'
+// Slider Data
+const slides = [
+    {
+        image: "img/hero1.jpg", // Oyaage folder eke thiyena image name eka
+        title: "NEWBORN MAGIC",
+        text: "Softest fabrics for your little ones"
+    },
+    {
+        image: "img/hero2.jpeg",
+        title: "STYLISH TODDLERS",
+        text: "Trendy outfits for every occasion"
+    },
+    {
+        image: "img/hero3.jpeg",
+        title: "MANDINU SPECIALS",
+        text: "Premium quality you can trust"
+    }
 ];
 
 let currentSlide = 0;
-const sliderDiv = document.querySelector('#slider div');
 
-function changeSlide() {
-    if (sliderDiv) {
-        currentSlide = (currentSlide + 1) % sliderImages.length;
-        sliderDiv.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('${sliderImages[currentSlide]}')`;
-    }
+function updateSlider() {
+    const slideContent = document.getElementById('slide-content');
+    const slideTitle = document.getElementById('slide-title');
+    const slideText = document.getElementById('slide-text');
+
+    // Fade out effect (Optional)
+    slideTitle.style.opacity = 0;
+    slideText.style.opacity = 0;
+
+    setTimeout(() => {
+        // Change data
+        currentSlide = (currentSlide + 1) % slides.length;
+        const nextSlide = slides[currentSlide];
+
+        slideContent.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.2)), url('${nextSlide.image}')`;
+        slideTitle.innerText = nextSlide.title;
+        slideText.innerText = nextSlide.text;
+
+        // Fade in
+        slideTitle.style.opacity = 1;
+        slideText.style.opacity = 1;
+    }, 500);
 }
 
-setInterval(changeSlide, 5000); // Every 5 seconds
+// Every 5 seconds change slide
+setInterval(updateSlider, 5000);
 
 // 2. Global Cart Variable
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -233,96 +262,158 @@ function removeItem(index) {
 const sheetId = '1G4cN7nFeC3160l5q9B18kGW3fEJDXLFjaOIJf-and-w'; 
 const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
 
-async function loadProductsFromSheet() {
-    try {
-        const response = await fetch(base);
-        const data = await response.text();
-        
-        const rows = data.split('\n').slice(1); 
-        products = rows.map(row => {
-            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); 
-            return {
-                id: cols[0].replace(/"/g, '').trim(),
-                name: cols[1].replace(/"/g, '').trim(),
-                price: parseFloat(cols[2].replace(/"/g, '')),
-                description: cols[3].replace(/"/g, '').trim(),
-                category: cols[4].replace(/"/g, '').trim(),
-                sizes: cols[5].replace(/"/g, '').split(','),
-                colors: cols[6].replace(/"/g, '').split(','),
-                discount: parseFloat(cols[7].replace(/"/g, '')),
-                image: cols[8].replace(/"/g, '').trim(),
-                isSoldOut: cols[9].replace(/"/g, '').trim().toLowerCase() === 'sold out'
-            };
-        });
-        
-        displayProducts(); 
-    } catch (error) {
-        console.error("Sheet data loading error:", error);
-    }
 
-    let selectedSize = "";
+let selectedSize = "";
 let selectedColor = "";
 let currentQty = 1;
 
+// 1. Sheet eken Data load kirima - Fast & Error Free
+async function loadProductsFromSheet() {
+    try {
+        const response = await fetch(base);
+        const csvData = await response.text();
+        
+        // Rows wen karaddi empty peli ayin karamu
+        const rows = csvData.split('\n').filter(row => row.trim() !== "").slice(1); 
+        
+        products = rows.map(row => {
+            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); 
+            
+            // Safe mapping function
+            const getVal = (idx) => cols[idx] ? cols[idx].replace(/"/g, '').trim() : "";
+
+            // ID ekak nathi peli ignore karanna
+            if (!getVal(0)) return null;
+
+            return {
+                id: getVal(0),
+                name: getVal(1),
+                price: parseFloat(getVal(2)) || 0,
+                description: getVal(3),
+                category: getVal(4),
+                sizes: getVal(5) ? getVal(5).split(',') : [],
+                colors: getVal(6) ? getVal(6).split(',') : [],
+                discount: parseFloat(getVal(7)) || 0,
+                image: getVal(8),
+                status: getVal(9) // Column 10: Status (Available/Sold Out)
+            };
+        }).filter(p => p !== null);
+
+        // Home page eke nam cards display karamu
+        if (document.getElementById('product-container')) {
+            displayProducts(products);
+        }
+        
+        // Product details page eke nam details render karamu
+        if (document.getElementById('p-title')) {
+            renderProductDetails();
+        }
+
+    } catch (error) {
+        console.error("Loading error:", error);
+    }
+}
+
+// 2. Home Page Cards Display (Faster)
+function displayProducts(items) {
+    const container = document.getElementById('product-container');
+    if (!container) return;
+    
+    let html = "";
+    items.forEach(item => {
+        const finalPrice = item.price - (item.price * item.discount / 100);
+        const isSoldOut = item.status.toLowerCase() === "sold out";
+
+        html += `
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden relative group cursor-pointer" onclick="viewProduct('${item.id}')">
+                ${isSoldOut ? '<div class="absolute inset-0 bg-black/50 z-10 flex items-center justify-center"><span class="bg-red-500 text-white px-4 py-1 rounded-full font-bold">SOLD OUT</span></div>' : ''}
+                ${item.discount > 0 ? `<div class="absolute top-3 left-3 bg-yellow-400 text-xs font-bold px-2 py-1 rounded-md z-20">${item.discount}% OFF</div>` : ''}
+                
+                <img src="${item.image.split(',')[0]}" class="w-full h-64 object-cover group-hover:scale-105 transition duration-300">
+                
+                <div class="p-4 text-left">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold">${item.category}</p>
+                    <h3 class="font-bold text-base md:text-lg mb-1 truncate">${item.name}</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-pink-600 font-bold text-xl">Rs. ${finalPrice}</span>
+                        ${item.discount > 0 ? `<span class="text-gray-400 line-through text-xs">Rs. ${item.price}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// 3. Page Navigation Logic
+function viewProduct(id) {
+    localStorage.setItem('selectedProductId', id);
+    window.location.href = "product.html";
+}
+
+// 4. Product Details Render (Product Page)
 function renderProductDetails() {
     const pId = localStorage.getItem('selectedProductId');
-    // Load products from localStorage or wait for fetch
-    setTimeout(() => {
-        const item = products.find(p => p.id == pId);
-        if (!item) return;
+    const item = products.find(p => p.id == pId);
+    if (!item) return;
 
-        document.getElementById('p-title').innerText = item.name;
-        document.getElementById('p-price').innerText = "Rs. " + (item.price - (item.price * item.discount / 100));
-        document.getElementById('p-old-price').innerText = item.discount > 0 ? "Rs. " + item.price : "";
-        document.getElementById('p-desc').innerText = item.description;
-        document.getElementById('p-cat').innerText = item.category;
-        
-        // Multi-image handling (Link1, Link2 kiyala sheet eke thibunoth)
-        const images = item.image.split(',');
-        document.getElementById('main-img').src = images[0];
-        
-        const thumbContainer = document.getElementById('thumb-container');
-        images.forEach(img => {
-            const t = document.createElement('img');
-            t.src = img;
-            t.className = "w-20 h-20 object-cover rounded-lg cursor-pointer border-2 hover:border-pink-500";
-            t.onclick = () => document.getElementById('main-img').src = img;
-            thumbContainer.appendChild(t);
-        });
+    // Set Text Details
+    document.getElementById('p-title').innerText = item.name;
+    document.getElementById('p-price').innerText = "Rs. " + (item.price - (item.price * item.discount / 100));
+    document.getElementById('p-old-price').innerText = item.discount > 0 ? "Rs. " + item.price : "";
+    document.getElementById('p-desc').innerText = item.description;
+    document.getElementById('p-cat').innerText = item.category;
+    
+    // Images & Thumbnails
+    const images = item.image.split(',');
+    const mainImg = document.getElementById('main-img');
+    mainImg.src = images[0].trim();
+    
+    const thumbContainer = document.getElementById('thumb-container');
+    thumbContainer.innerHTML = ""; 
+    images.forEach(imgUrl => {
+        const thumb = document.createElement('img');
+        thumb.src = imgUrl.trim();
+        thumb.className = "w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg cursor-pointer border-2 hover:border-pink-500 p-1";
+        thumb.onclick = () => mainImg.src = imgUrl.trim();
+        thumbContainer.appendChild(thumb);
+    });
 
-        // Sizes Render
-        const sizeBox = document.getElementById('size-options');
-        item.sizes.forEach(s => {
-            const btn = document.createElement('button');
-            btn.innerText = s;
-            btn.className = "border-2 border-gray-200 px-4 py-2 rounded-xl hover:bg-pink-50 transition";
-            btn.onclick = (e) => {
-                document.querySelectorAll('#size-options button').forEach(b => b.classList.remove('selected-option'));
-                btn.classList.add('selected-option');
-                selectedSize = s;
-            };
-            sizeBox.appendChild(btn);
-        });
+    // Sizes
+    const sizeBox = document.getElementById('size-options');
+    sizeBox.innerHTML = "";
+    item.sizes.forEach(s => {
+        const btn = document.createElement('button');
+        btn.innerText = s.trim();
+        btn.className = "border-2 border-gray-200 px-5 py-2 rounded-xl hover:bg-pink-50 transition font-medium";
+        btn.onclick = () => {
+            document.querySelectorAll('#size-options button').forEach(b => b.classList.remove('selected-option', 'border-pink-500', 'bg-pink-50'));
+            btn.classList.add('selected-option', 'border-pink-500', 'bg-pink-50');
+            selectedSize = s.trim();
+        };
+        sizeBox.appendChild(btn);
+    });
 
-        // Colors Render
-        const colorBox = document.getElementById('color-options');
-        item.colors.forEach(c => {
-            const btn = document.createElement('button');
-            btn.innerText = c;
-            btn.className = "border-2 border-gray-200 px-4 py-2 rounded-xl hover:bg-pink-50 transition";
-            btn.onclick = () => {
-                document.querySelectorAll('#color-options button').forEach(b => b.classList.remove('selected-option'));
-                btn.classList.add('selected-option');
-                selectedColor = c;
-            };
-            colorBox.appendChild(btn);
-        });
-    }, 1000); // Wait for sheet to load
+    // Colors
+    const colorBox = document.getElementById('color-options');
+    colorBox.innerHTML = "";
+    item.colors.forEach(c => {
+        const btn = document.createElement('button');
+        btn.innerText = c.trim();
+        btn.className = "border-2 border-gray-200 px-5 py-2 rounded-xl hover:bg-pink-50 transition font-medium";
+        btn.onclick = () => {
+            document.querySelectorAll('#color-options button').forEach(b => b.classList.remove('selected-option', 'border-pink-500', 'bg-pink-50'));
+            btn.classList.add('selected-option', 'border-pink-500', 'bg-pink-50');
+            selectedColor = c.trim();
+        };
+        colorBox.appendChild(btn);
+    });
 }
 
 function changeQty(val) {
     currentQty = Math.max(1, currentQty + val);
-    document.getElementById('qty-val').innerText = currentQty;
+    const qtyEl = document.getElementById('qty-val');
+    if (qtyEl) qtyEl.innerText = currentQty;
 }
 
 function finalAddToCart() {
@@ -333,19 +424,24 @@ function finalAddToCart() {
     const pId = localStorage.getItem('selectedProductId');
     const item = products.find(p => p.id == pId);
     
-    cart.push({
-        ...item,
+    const cartItem = {
+        id: item.id,
+        name: item.name,
+        image: item.image.split(',')[0],
         price: item.price - (item.price * item.discount / 100),
         size: selectedSize,
         color: selectedColor,
         quantity: currentQty
-    });
+    };
     
+    cart.push(cartItem);
     localStorage.setItem('cart', JSON.stringify(cart));
-    alert("Product added to cart!");
+    alert("Added to cart!");
     window.location.href = "cart.html";
 }
-}
+
+// Window Load Event
+window.onload = loadProductsFromSheet;
 
 // Unified Window Load
 window.onload = function() {

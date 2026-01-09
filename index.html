@@ -89,17 +89,18 @@
     </div>
 
     <div class="relative h-[300px] md:h-[500px] overflow-hidden">
-        <div id="slider" class="h-full">
-            <div class="absolute inset-0 bg-cover bg-center flex items-center justify-center transition-all duration-1000" 
-                 style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.2)), url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071');">
-                <div class="text-center text-white px-6">
-                    <h1 class="text-3xl md:text-6xl font-black mb-4 uppercase tracking-tighter">Premium Baby Wear</h1>
-                    <p class="text-sm md:text-xl mb-6 font-light">Quality clothes for your precious little blossoms.</p>
-                    <a href="#product-container" class="bg-pink-500 hover:bg-white hover:text-pink-500 px-10 py-3 rounded-full font-bold transition-all shadow-lg inline-block">VIEW COLLECTIONS</a>
-                </div>
+    <div id="slider" class="h-full relative">
+        <div id="slide-content" class="absolute inset-0 bg-cover bg-center flex items-center justify-center transition-all duration-1000" 
+             style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.2)), url('img/hero1.jpg');">
+            
+            <div class="text-center text-white px-6">
+                <h1 id="slide-title" class="text-4xl md:text-7xl font-black mb-4 tracking-tighter uppercase transition-opacity duration-500">Premium Baby Wear</h1>
+                <p id="slide-text" class="text-sm md:text-xl mb-8 font-light tracking-widest uppercase transition-opacity duration-500">Pure Comfort for Little Hearts</p>
+                <a href="#product-container" class="bg-pink-500 hover:bg-white hover:text-pink-500 px-10 py-4 rounded-full font-bold transition-all shadow-2xl inline-block">SHOP NOW</a>
             </div>
         </div>
     </div>
+</div>
 
     <main class="flex-grow container mx-auto py-12 px-6">
         <div class="flex justify-between items-end mb-10 border-b-2 border-pink-100 pb-4">
